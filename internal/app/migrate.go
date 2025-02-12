@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 const (
@@ -15,11 +17,12 @@ const (
 	defaultTimeout  = time.Second
 )
 
-func init() {
+func Migrate() {
 	log.Printf("Migrate: start")
 	conn, ok := os.LookupEnv("POSTGRES_CONN")
 	if !ok {
 		fmt.Printf("%s not set\n", "POSTGRES_CONN")
+		return
 	}
 	conn += "?sslmode=disable"
 
@@ -27,6 +30,7 @@ func init() {
 	var m *migrate.Migrate
 	var err error
 
+	fmt.Println("migrate conn - " + conn)
 	for attempts > 0 {
 		m, err = migrate.New(
 			"file://migrations",
@@ -34,6 +38,8 @@ func init() {
 		)
 		if err == nil {
 			break
+		} else {
+			fmt.Println(err.Error())
 		}
 
 		log.Printf("Migrate: pgdb is trying to connect, attempts left: %d", attempts)
