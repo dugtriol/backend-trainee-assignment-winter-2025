@@ -23,7 +23,7 @@ type (
 	}
 
 	Database struct {
-		Conn         string        `env-required:"true" env:"POSTGRES_CONN"`
+		Conn         string        `env:"POSTGRES_CONN" env-upd`
 		MaxPoolSize  int           `env-required:"true" yaml:"max_pool_size" env-default:"1"`
 		ConnAttempts int           `env-required:"true" yaml:"conn_attempts" env-default:"5"`
 		ConnTimeout  time.Duration `env-required:"true" yaml:"conn_timeout" env-default:"3s"`
@@ -35,15 +35,15 @@ type (
 )
 
 func NewConfig(configPath string) (*Config, error) {
+	var err error
 	cfg := &Config{}
 
-	err := cleanenv.ReadConfig(path.Join("./", configPath), cfg)
+	err = cleanenv.ReadConfig(path.Join("./", configPath), cfg)
 	if err != nil {
 		return nil, fmt.Errorf("error reading config file: %w", err)
 	}
 
-	err = cleanenv.UpdateEnv(cfg)
-	if err != nil {
+	if err = cleanenv.UpdateEnv(cfg); err != nil {
 		return nil, fmt.Errorf("error updating env: %w", err)
 	}
 
