@@ -1,10 +1,11 @@
 http:
   port: ":8080"
-  timeout: "4s"
-  idle_timeout: "60s"
-
-log:
-  level: "local"
-
+  host: "local"
+  timeout: "5s"
+  shutdown_timeout: "3s"
 database:
   max_pool_size: 2
+  conn_attempts: 10
+  conn_timeout: "1s"
+log:
+  level: "local"

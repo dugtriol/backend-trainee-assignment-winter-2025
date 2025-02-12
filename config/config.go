@@ -16,19 +16,21 @@ type (
 	}
 
 	HTTP struct {
-		Port        string        `env-required:"true" yaml:"port" env:"SERVER_PORT"`
-		Address     string        `env-required:"true" yaml:"address" env:"SERVER_ADDRESS"`
-		Timeout     string        `env-required:"true" yaml:"timeout"`
-		IdleTimeout time.Duration `env-required:"true" yaml:"idle_timeout"`
+		Port            string        `env-required:"true" yaml:"port"`
+		Host            string        `env-required:"true" yaml:"host"`
+		Timeout         time.Duration `env-required:"true" yaml:"timeout" env-default:"4s"`
+		ShutdownTimeout time.Duration `env-required:"true" yaml:"shutdown_timeout" env-default:"2s"`
 	}
 
 	Database struct {
-		Conn        string `env-required:"true" env:"POSTGRES_CONN"`
-		MaxPoolSize int    `env-required:"true" yaml:"max_pool_size" env:"MAX_POOL_SIZE"`
+		Conn         string        `env-required:"true" env:"POSTGRES_CONN"`
+		MaxPoolSize  int           `env-required:"true" yaml:"max_pool_size" env-default:"1"`
+		ConnAttempts int           `env-required:"true" yaml:"conn_attempts" env-default:"5"`
+		ConnTimeout  time.Duration `env-required:"true" yaml:"conn_timeout" env-default:"3s"`
 	}
 
 	Log struct {
-		Level string `env-required:"true" yaml:"level" env:"LOG_LEVEL"`
+		Level string `env-required:"true" yaml:"level" env-default:"local"`
 	}
 )
 
