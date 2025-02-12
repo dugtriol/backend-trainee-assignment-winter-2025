@@ -6,13 +6,6 @@ import (
 	"time"
 )
 
-const (
-	defaultReadTimeout     = 5 * time.Second
-	defaultWriteTimeout    = 5 * time.Second
-	defaultAddr            = ":8080"
-	defaultShutdownTimeout = 3 * time.Second
-)
-
 type Server struct {
 	server          *http.Server
 	notify          chan error
@@ -21,16 +14,12 @@ type Server struct {
 
 func New(handler http.Handler, opts ...Option) *Server {
 	httpServer := &http.Server{
-		Handler:      http.TimeoutHandler(handler, 1*time.Second, "long time request"),
-		ReadTimeout:  defaultReadTimeout,
-		WriteTimeout: defaultWriteTimeout,
-		Addr:         defaultAddr,
+		Handler: http.TimeoutHandler(handler, 1*time.Second, "long time request"),
 	}
 
 	s := &Server{
-		server:          httpServer,
-		notify:          make(chan error, 1),
-		shutdownTimeout: defaultShutdownTimeout,
+		server: httpServer,
+		notify: make(chan error, 1),
 	}
 
 	for _, opt := range opts {

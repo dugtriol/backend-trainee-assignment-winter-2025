@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	defaultMaxPoolSize  = 1
-	defaultConnAttempts = 10
-	defaultConnTimeout  = time.Second
+// defaultMaxPoolSize  = 1
+// defaultConnAttempts = 10
+// defaultConnTimeout  = time.Second
 )
 
 type PgxPool interface {
@@ -43,11 +43,7 @@ type Database struct {
 }
 
 func New(ctx context.Context, connString string, opts ...Option) (*Database, error) {
-	db := &Database{
-		maxPoolSize:  defaultMaxPoolSize,
-		connAttempts: defaultConnAttempts,
-		connTimeout:  defaultConnTimeout,
-	}
+	db := &Database{}
 
 	for _, opt := range opts {
 		opt(db)
@@ -72,7 +68,7 @@ func New(ctx context.Context, connString string, opts ...Option) (*Database, err
 		db.connAttempts--
 	}
 	if err != nil {
-		fmt.Errorf("database - New - pgxpool.NewWithConfig: %w", err)
+		fmt.Printf("database - New - pgxpool.NewWithConfig: %w", err)
 		return nil, err
 	}
 	return db, nil
