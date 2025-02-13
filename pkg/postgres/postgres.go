@@ -12,12 +12,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-const (
-// defaultMaxPoolSize  = 1
-// defaultConnAttempts = 10
-// defaultConnTimeout  = time.Second
-)
-
 type PgxPool interface {
 	Close()
 	Acquire(ctx context.Context) (*pgxpool.Conn, error)
