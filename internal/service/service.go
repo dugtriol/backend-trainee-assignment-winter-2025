@@ -1,8 +1,20 @@
 package service
 
-import "backend-trainee-assignment-winter-2025/internal/repo"
+import (
+	"context"
+	"log/slog"
 
-type User interface{}
+	"backend-trainee-assignment-winter-2025/internal/repo"
+)
+
+type AuthInput struct {
+	Username string
+	Password string
+}
+
+type User interface {
+	Auth(ctx context.Context, log *slog.Logger, input AuthInput) error
+}
 
 type Services struct {
 	User
