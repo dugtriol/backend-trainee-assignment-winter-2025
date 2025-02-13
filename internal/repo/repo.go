@@ -1,14 +1,17 @@
 package repo
 
 import (
+	"context"
+
+	"backend-trainee-assignment-winter-2025/internal/entity"
 	"backend-trainee-assignment-winter-2025/internal/repo/pgdb"
 	"backend-trainee-assignment-winter-2025/pkg/postgres"
 )
 
 type User interface {
-	//Create(ctx context.Context, input entity.User) (string, error)
-	//GetById(ctx context.Context, id string) (entity.User, error)
-	//GetByUsername(ctx context.Context, username string) (entity.User, error)
+	Create(ctx context.Context, user entity.User) error
+	GetById(ctx context.Context, id string) (entity.User, error)
+	GetByUsername(ctx context.Context, username string) (entity.User, error)
 }
 
 type Inventory interface {
