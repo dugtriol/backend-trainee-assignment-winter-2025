@@ -25,6 +25,7 @@ func NewRouter(ctx context.Context, log *slog.Logger, route *chi.Mux, services *
 	route.Route(
 		api, func(r chi.Router) {
 			r.Get("/ping", Ping())
+			newUserRoutes(ctx, log, r, services.User)
 		},
 	)
 }
