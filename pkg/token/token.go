@@ -17,14 +17,14 @@ type Claims struct {
 }
 
 type Token interface {
-	Create() (string, error)
+	Create(userId string) (string, error)
 	Check(tokenString string) bool
 }
 
-func Create() (string, error) {
+func Create(userId string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256, Claims{
-			RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp))},
+			RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)), ID: userId},
 		},
 	)
 	signedString, err := token.SignedString([]byte(TokenSecretKey))
