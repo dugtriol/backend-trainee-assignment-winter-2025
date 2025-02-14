@@ -38,11 +38,11 @@ func (u *userRoutes) auth(ctx context.Context, log *slog.Logger) http.HandlerFun
 		var tokenString string
 
 		if err = render.DecodeJSON(r.Body, &input); err != nil {
-			response.NewErrorResponse(w, r, log, err, http.StatusBadRequest, MsgFailedParsing)
+			response.NewError(w, r, log, err, http.StatusBadRequest, MsgFailedParsing)
 			return
 		}
 		if err = validator.New().Struct(input); err != nil {
-			response.NewErrorValidateResponse(w, r, log, http.StatusBadRequest, MsgInvalidReq, err)
+			response.NewValidateError(w, r, log, http.StatusBadRequest, MsgInvalidReq, err)
 			return
 		}
 		if tokenString, err = u.userService.Auth(
@@ -52,11 +52,11 @@ func (u *userRoutes) auth(ctx context.Context, log *slog.Logger) http.HandlerFun
 			},
 		); err != nil {
 			if errors.Is(err, service.ErrInvalidPassword) {
-				response.NewErrorResponse(w, r, log, err, http.StatusBadRequest, MsgInvalidPasswordErr)
+				response.NewError(w, r, log, err, http.StatusBadRequest, MsgInvalidPasswordErr)
 				return
 			}
 			log.Error(err.Error())
-			response.NewErrorResponse(w, r, log, err, http.StatusInternalServerError, MsgInternalServerErr)
+			response.NewError(w, r, log, err, http.StatusInternalServerError, MsgInternalServerErr)
 			return
 		}
 

@@ -15,7 +15,7 @@ type Response struct {
 	Message string `json:"errors,omitempty"`
 }
 
-func NewErrorResponse(
+func NewError(
 	w http.ResponseWriter, r *http.Request, log *slog.Logger, err error, errStatus int, message string,
 ) {
 	log.Error(message, err)
@@ -23,7 +23,7 @@ func NewErrorResponse(
 	render.JSON(w, r, makeResponse(message))
 }
 
-func NewErrorValidateResponse(
+func NewValidateError(
 	w http.ResponseWriter, r *http.Request, log *slog.Logger, errStatus int, message string,
 	err error,
 ) {
