@@ -9,7 +9,7 @@ import (
 )
 
 type User interface {
-	Create(ctx context.Context, user entity.User) error
+	Create(ctx context.Context, user entity.User) (entity.User, error)
 	GetById(ctx context.Context, id string) (entity.User, error)
 	GetByUsername(ctx context.Context, username string) (entity.User, error)
 }

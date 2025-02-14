@@ -24,7 +24,7 @@ func NewUserRepository(db *postgres.Database) *UserRepository {
 	return &UserRepository{db}
 }
 
-func (u *UserRepository) Create(ctx context.Context, user entity.User) error {
+func (u *UserRepository) Create(ctx context.Context, user entity.User) (entity.User, error) {
 	var err error
 	sql, args, err := u.Builder.Insert(userTable).Columns("username", "password").Values(
 		user.Username,
@@ -33,17 +33,24 @@ func (u *UserRepository) Create(ctx context.Context, user entity.User) error {
 
 	log.Println(sql)
 	if err != nil {
-		return fmt.Errorf("UserRepo - Create - u.Builder.Insert: %v", err)
+		return entity.User{}, fmt.Errorf("UserRepo - Create - u.Builder.Insert: %v", err)
 	}
 
-	if _, err = u.Cluster.Exec(ctx, sql, args...); err != nil {
+	var output entity.User
+	err = u.Cluster.QueryRow(ctx, sql, args...).Scan(
+		&output.Id,
+		&output.Username,
+		&output.Password,
+		&output.Amount,
+	)
+	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return repoerrs.ErrNotFound
+			return entity.User{}, repoerrs.ErrNotFound
 		}
-		return fmt.Errorf("UserRepo - Create: %v", err)
+		return entity.User{}, fmt.Errorf("UserRepo - Create: %v", err)
 	}
 
-	return nil
+	return output, nil
 }
 
 func (u *UserRepository) GetById(ctx context.Context, id string) (entity.User, error) {
