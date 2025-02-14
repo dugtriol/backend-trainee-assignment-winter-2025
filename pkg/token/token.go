@@ -2,6 +2,7 @@ package token
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -12,10 +13,6 @@ const (
 	TokenSecretKey = "supersecretkey"
 )
 
-type Claims struct {
-	jwt.RegisteredClaims
-}
-
 type Token interface {
 	Create(userId string) (string, error)
 	Check(tokenString string) bool
@@ -23,9 +20,8 @@ type Token interface {
 
 func Create(userId string) (string, error) {
 	token := jwt.NewWithClaims(
-		jwt.SigningMethodHS256, Claims{
-			RegisteredClaims: jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)), ID: userId},
-		},
+		jwt.SigningMethodHS256,
+		jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)), Subject: userId},
 	)
 	signedString, err := token.SignedString([]byte(TokenSecretKey))
 	if err != nil {
@@ -34,10 +30,12 @@ func Create(userId string) (string, error) {
 	return signedString, nil
 }
 
-func Check(tokenString string) (bool, error) {
-	data := &Claims{}
+func Check(tokenString string) (*jwt.Token, error) {
+	data := &jwt.RegisteredClaims{}
+	var token *jwt.Token
+	var err error
 
-	if _, err := jwt.ParseWithClaims(
+	if token, err = jwt.ParseWithClaims(
 		tokenString, data,
 		func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -46,8 +44,9 @@ func Check(tokenString string) (bool, error) {
 			return []byte(TokenSecretKey), nil
 		},
 	); err != nil {
-		return false, err
+		log.Printf(fmt.Sprintf("Token - Check - jwt.ParseWithClaims: %v", token))
+		return nil, err
 	}
 
-	return true, nil
+	return token, nil
 }
