@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"backend-trainee-assignment-winter-2025/internal/service"
+	"backend-trainee-assignment-winter-2025/pkg/response"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/go-playground/validator/v10"
@@ -37,11 +38,11 @@ func (u *userRoutes) auth(ctx context.Context, log *slog.Logger) http.HandlerFun
 		var tokenString string
 
 		if err = render.DecodeJSON(r.Body, &input); err != nil {
-			newErrorResponse(w, r, log, err, http.StatusBadRequest, MsgFailedParsing)
+			response.NewErrorResponse(w, r, log, err, http.StatusBadRequest, MsgFailedParsing)
 			return
 		}
 		if err = validator.New().Struct(input); err != nil {
-			newErrorValidateResponse(w, r, log, http.StatusBadRequest, MsgInvalidReq, err)
+			response.NewErrorValidateResponse(w, r, log, http.StatusBadRequest, MsgInvalidReq, err)
 			return
 		}
 		if tokenString, err = u.userService.Auth(
@@ -51,11 +52,11 @@ func (u *userRoutes) auth(ctx context.Context, log *slog.Logger) http.HandlerFun
 			},
 		); err != nil {
 			if errors.Is(err, service.ErrInvalidPassword) {
-				newErrorResponse(w, r, log, err, http.StatusBadRequest, MsgInvalidPasswordErr)
+				response.NewErrorResponse(w, r, log, err, http.StatusBadRequest, MsgInvalidPasswordErr)
 				return
 			}
 			log.Error(err.Error())
-			newErrorResponse(w, r, log, err, http.StatusInternalServerError, MsgInternalServerErr)
+			response.NewErrorResponse(w, r, log, err, http.StatusInternalServerError, MsgInternalServerErr)
 			return
 		}
 
