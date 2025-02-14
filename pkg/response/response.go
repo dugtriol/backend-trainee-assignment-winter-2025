@@ -8,7 +8,7 @@ import (
 )
 
 type Response struct {
-	Message string `json:"reason,omitempty"`
+	Message string `json:"errors,omitempty"`
 }
 
 func MakeResponse(message string) Response {
