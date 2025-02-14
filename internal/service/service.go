@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 
+	"backend-trainee-assignment-winter-2025/internal/entity"
 	"backend-trainee-assignment-winter-2025/internal/repo"
 )
 
@@ -14,6 +15,7 @@ type AuthInput struct {
 
 type User interface {
 	Auth(ctx context.Context, log *slog.Logger, input AuthInput) (string, error)
+	GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error)
 }
 
 type Services struct {

@@ -44,6 +44,17 @@ func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInpu
 	return tokenString, err
 }
 
+func (s *UserService) GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error) {
+	var err error
+	log.Info(fmt.Sprintf("Service - UserService - GetById"))
+	output, err := s.userRepo.GetById(ctx, id)
+	if err != nil {
+		log.Error(fmt.Sprintf("Service - UserService - GetById - GetById: %v", err))
+		return entity.User{}, ErrUserNotFound
+	}
+	return output, err
+}
+
 func (s *UserService) register(ctx context.Context, log *slog.Logger, input AuthInput) (string, error) {
 	var err error
 	var tokenString string
