@@ -13,7 +13,7 @@ type AuthInput struct {
 }
 
 type User interface {
-	Auth(ctx context.Context, log *slog.Logger, input AuthInput) error
+	Auth(ctx context.Context, log *slog.Logger, input AuthInput) (string, error)
 }
 
 type Services struct {

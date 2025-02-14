@@ -25,8 +25,17 @@ func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInpu
 	log.Info(fmt.Sprintf("Service - UserService - Auth"))
 	var err error
 	var tokenString string
-	if err = s.isExist(ctx, log, input); err != nil {
+	var output entity.User
+	output, err = s.isExist(ctx, log, input)
+
+	if errors.Is(err, ErrInvalidPassword) {
 		return "", err
+	}
+	if err != nil {
+		if tokenString, err = token.Create(output.Id); err != nil {
+			return "", err
+		}
+		return tokenString, err
 	}
 
 	if tokenString, err = s.register(ctx, log, input); err != nil {
@@ -47,8 +56,8 @@ func (s *UserService) register(ctx context.Context, log *slog.Logger, input Auth
 		Username: input.Username,
 		Password: password,
 	}
-
-	err = s.userRepo.Create(ctx, user)
+	var output entity.User
+	output, err = s.userRepo.Create(ctx, user)
 	if err != nil {
 		if errors.Is(err, repoerrs.ErrAlreadyExists) {
 			return "", ErrUserAlreadyExists
@@ -57,25 +66,25 @@ func (s *UserService) register(ctx context.Context, log *slog.Logger, input Auth
 		return "", ErrCannotCreateUser
 	}
 
-	if tokenString, err = token.Create(); err != nil {
+	if tokenString, err = token.Create(output.Id); err != nil {
 		return "", err
 	}
 	return tokenString, err
 }
 
-func (s *UserService) isExist(ctx context.Context, log *slog.Logger, input AuthInput) error {
+func (s *UserService) isExist(ctx context.Context, log *slog.Logger, input AuthInput) (entity.User, error) {
 	var err error
 	log.Info(fmt.Sprintf("Service - UserService - isExist"))
 	output, err := s.userRepo.GetByUsername(ctx, input.Username)
 	if err != nil {
 		log.Error(fmt.Sprintf("Service - UserService - isExist - GetByUsername: %v", err))
-		return ErrUserNotFound
+		return entity.User{}, ErrUserNotFound
 	}
 
 	if err = hasher.CheckPassword(input.Password, output.Password); err != nil {
 		log.Error(fmt.Sprintf("Service - UserService - isExist - CheckPassword: %v", err))
-		return ErrUserNotFound
+		return entity.User{}, ErrInvalidPassword
 	}
 
-	return err
+	return output, err
 }

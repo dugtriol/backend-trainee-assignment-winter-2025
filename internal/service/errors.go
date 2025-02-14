@@ -11,6 +11,7 @@ var (
 	ErrUserAlreadyExists = fmt.Errorf("user already exists")
 	ErrCannotCreateUser  = fmt.Errorf("cannot create user")
 	ErrUserNotFound      = fmt.Errorf("user not found")
+	ErrInvalidPassword   = fmt.Errorf("invalid password")
 	ErrCannotUpdateUser  = fmt.Errorf("cannot update user")
 
 	ErrAlreadyExists = fmt.Errorf("already exists")
