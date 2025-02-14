@@ -31,7 +31,7 @@ func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInpu
 	if errors.Is(err, ErrInvalidPassword) {
 		return "", err
 	}
-	if err != nil {
+	if err == nil {
 		if tokenString, err = token.Create(output.Id); err != nil {
 			return "", err
 		}
