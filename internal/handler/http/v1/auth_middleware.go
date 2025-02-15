@@ -2,7 +2,6 @@ package v1
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"log/slog"
@@ -24,33 +23,10 @@ func AuthMiddleware(
 	return func(next http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			var err error
-			// вытаскиваем jwt, проверять его, возвращаем id пользователя, вставляем его в context value
+			// вытаскиваем jwt, проверяем его, возвращаем id пользователя, вставляем его в context value
 			header := r.Header.Get("Authorization")
-			arr := strings.Split(header, " ")
-
-			if len(arr) != 2 {
-				response.NewError(
-					w,
-					r,
-					log,
-					ErrInvalidToken,
-					http.StatusUnauthorized,
-					"AuthMiddleware: Invalid format of token",
-				)
-				return
-			}
-
-			tokenString := arr[1]
-			var parseToken *jwt.Token
-			if parseToken, err = token.Check(tokenString); err != nil {
-				response.NewError(
-					w,
-					r,
-					log,
-					ErrInvalidToken,
-					http.StatusUnauthorized,
-					"AuthMiddleware: Bad token",
-				)
+			parseToken, err, done := authValidateToken(w, r, log, header, err)
+			if done {
 				return
 			}
 			var userId string
@@ -68,6 +44,14 @@ func AuthMiddleware(
 			var output entity.User
 			if output, err = service.GetById(ctx, log, userId); err != nil {
 				log.Info("AuthMiddleware - service.GetById", err)
+				response.NewError(
+					w,
+					r,
+					log,
+					ErrUserGet,
+					http.StatusInternalServerError,
+					"AuthMiddleware: Failed to get user by id",
+				)
 				return
 			}
 
@@ -78,18 +62,51 @@ func AuthMiddleware(
 	}
 }
 
-func GetCurrentUserFromCTX(ctx context.Context) (*entity.User, error) {
-	// вытаскиваем id из context value
-	errNoUserInContext := errors.New("no user in context")
-	log.Println(fmt.Sprintf("ctx.Value(CurrentUserKey): %s", ctx.Value(CurrentUserKey)))
-	if ctx.Value(CurrentUserKey) == nil {
-		return nil, errNoUserInContext
+func authValidateToken(w http.ResponseWriter, r *http.Request, log *slog.Logger, header string, err error) (
+	*jwt.Token, error, bool,
+) {
+	arr := strings.Split(header, " ")
+
+	if len(arr) != 2 {
+		response.NewError(
+			w,
+			r,
+			log,
+			ErrInvalidToken,
+			http.StatusUnauthorized,
+			"AuthMiddleware: Invalid format of token",
+		)
+		return nil, nil, true
 	}
 
+	tokenString := arr[1]
+	var parseToken *jwt.Token
+	if parseToken, err = token.Check(tokenString); err != nil {
+		response.NewError(
+			w,
+			r,
+			log,
+			ErrInvalidToken,
+			http.StatusUnauthorized,
+			"AuthMiddleware: Bad token",
+		)
+		return nil, nil, true
+	}
+	return parseToken, err, false
+}
+
+func GetCurrentUserFromContext(ctx context.Context) (*entity.User, error) {
+	// вытаскиваем id из context value
+	//
+	//log.Println(fmt.Sprintf("ctx.Value(CurrentUserKey): %s", ctx.Value(CurrentUserKey)))
+	//if ctx.Value(CurrentUserKey) == nil {
+	//	return nil, errNoUserInContext
+	//}
+
 	user, ok := ctx.Value(CurrentUserKey).(entity.User)
-	//log.Info(fmt.Sprintf("ctx.Value(CurrentUserKey).(*entity.User) %v",user))
+	log.Printf(fmt.Sprintf("GetCurrentUserFromContext - ctx.Value(CurrentUserKey).(*entity.User): %v", user))
 	if !ok || user.Id == "" {
-		return nil, errNoUserInContext
+		return nil, ErrNoUserInContext
 	}
 
 	return &user, nil
