@@ -22,9 +22,22 @@ type Inventory interface {
 	GetItem(ctx context.Context, log *slog.Logger, userId, item string) error
 }
 
+type TransactionInput struct {
+	FromUserId string
+	ToUserId   string
+	Amount     int
+}
+
+type Transaction interface {
+	Transfer(
+		ctx context.Context, log *slog.Logger, input TransactionInput,
+	) error
+}
+
 type Services struct {
 	User
 	Inventory
+	Transaction
 }
 
 type ServicesDependencies struct {
@@ -33,7 +46,8 @@ type ServicesDependencies struct {
 
 func NewServices(dep ServicesDependencies) *Services {
 	return &Services{
-		User:      NewUserService(dep.Repos.User),
-		Inventory: NewInventoryService(dep.Repos.Inventory),
+		User:        NewUserService(dep.Repos.User),
+		Inventory:   NewInventoryService(dep.Repos.Inventory),
+		Transaction: NewTransactionService(dep.Repos.Transaction, dep.Repos.User),
 	}
 }

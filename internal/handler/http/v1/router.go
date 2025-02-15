@@ -32,6 +32,7 @@ func NewRouter(ctx context.Context, log *slog.Logger, route *chi.Mux, services *
 					g.Use(AuthMiddleware(ctx, log, services.User))
 					g.Get("/ping", Ping())
 					newInventoryRoutes(ctx, log, g, services.Inventory)
+					newTransactionRoutes(ctx, log, g, services.Transaction)
 				},
 			)
 		},

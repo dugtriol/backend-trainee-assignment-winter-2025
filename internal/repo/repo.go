@@ -19,6 +19,10 @@ type Inventory interface {
 }
 
 type Transaction interface {
+	Transfer(
+		ctx context.Context, input entity.Transaction,
+		isExist func(ctx context.Context, id string) (entity.User, error),
+	) error
 }
 
 type Merch interface {

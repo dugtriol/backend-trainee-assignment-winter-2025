@@ -18,4 +18,10 @@ var (
 	ErrCannotParseToken = fmt.Errorf("cannot parse token")
 	ErrUserGet          = fmt.Errorf("user not get from database")
 	ErrNoUserInContext  = fmt.Errorf("no user in the context")
+
+	ErrLowBalance = fmt.Errorf("insufficient funds")
+	MsgLowBalance = "Insufficient funds"
+
+	ErrSimilarId = fmt.Errorf("similar IDs")
+	MsgSimilarId = "similar IDs"
 )
