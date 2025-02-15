@@ -15,15 +15,22 @@ type User interface {
 }
 
 type Inventory interface {
+	Add(ctx context.Context, inventory entity.Inventory) error
 }
 
 type Transaction interface {
+}
+
+type Merch interface {
+	GetById(ctx context.Context, id string) (entity.Merch, error)
+	GetByName(ctx context.Context, name string) (entity.Merch, error)
 }
 
 type Repositories struct {
 	User
 	Inventory
 	Transaction
+	Merch
 }
 
 func NewRepositories(db *postgres.Database) *Repositories {
@@ -31,5 +38,6 @@ func NewRepositories(db *postgres.Database) *Repositories {
 		User:        pgdb.NewUserRepository(db),
 		Inventory:   pgdb.NewInventoryRepository(db),
 		Transaction: pgdb.NewTransactionRepository(db),
+		Merch:       pgdb.NewMerchRepository(db),
 	}
 }
