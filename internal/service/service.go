@@ -18,8 +18,13 @@ type User interface {
 	GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error)
 }
 
+type Inventory interface {
+	GetItem(ctx context.Context, log *slog.Logger, userId, item string) error
+}
+
 type Services struct {
 	User
+	Inventory
 }
 
 type ServicesDependencies struct {
@@ -28,6 +33,7 @@ type ServicesDependencies struct {
 
 func NewServices(dep ServicesDependencies) *Services {
 	return &Services{
-		User: NewUserService(dep.Repos.User),
+		User:      NewUserService(dep.Repos.User),
+		Inventory: NewInventoryService(dep.Repos.Inventory),
 	}
 }
