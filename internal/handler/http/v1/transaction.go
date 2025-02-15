@@ -22,7 +22,7 @@ func newTransactionRoutes(
 	ctx context.Context, log *slog.Logger, route chi.Router, transactionService service.Transaction,
 ) {
 	u := transactionRoutes{transactionService: transactionService}
-	route.Get("/sendCoin", u.sendCoin(ctx, log))
+	route.Post("/sendCoin", u.sendCoin(ctx, log))
 }
 
 type inputSendCoin struct {
