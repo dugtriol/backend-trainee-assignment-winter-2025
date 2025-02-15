@@ -33,6 +33,7 @@ func NewRouter(ctx context.Context, log *slog.Logger, route *chi.Mux, services *
 					g.Get("/ping", Ping())
 					newInventoryRoutes(ctx, log, g, services.Inventory)
 					newTransactionRoutes(ctx, log, g, services.Transaction)
+					newInfoRoutes(ctx, log, g, services.Info, services.User, services.Inventory, services.Transaction)
 				},
 			)
 		},
