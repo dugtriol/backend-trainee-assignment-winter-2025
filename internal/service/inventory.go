@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 
 	"backend-trainee-assignment-winter-2025/internal/entity"
 	"backend-trainee-assignment-winter-2025/internal/repo"
+	"backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
 )
 
 type InventoryService struct {
@@ -35,6 +37,9 @@ func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId
 	// покупка мерча
 	// изменение баланса у пользователя
 	if err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerId: userId, Type: item}); err != nil {
+		if errors.Is(err, repoerrs.ErrLowBalance) {
+			return ErrLowBalance
+		}
 		return err
 	}
 	return nil

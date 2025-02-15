@@ -2,6 +2,7 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -67,6 +68,17 @@ func (u *inventoryRoutes) buy(ctx context.Context, log *slog.Logger) http.Handle
 			return
 		}
 		if err = u.inventoryService.GetItem(ctx, log, current.Id, item); err != nil {
+			if errors.Is(err, service.ErrLowBalance) {
+				response.NewError(
+					w,
+					r,
+					log,
+					ErrLowBalance,
+					http.StatusBadRequest,
+					MsgLowBalance,
+				)
+				return
+			}
 			response.NewError(w, r, log, err, http.StatusInternalServerError, MsgInternalServerErr)
 			return
 		}

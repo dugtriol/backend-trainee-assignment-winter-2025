@@ -2,10 +2,12 @@ package pgdb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 
 	"backend-trainee-assignment-winter-2025/internal/entity"
+	"backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
 	"backend-trainee-assignment-winter-2025/pkg/postgres"
 	"github.com/Masterminds/squirrel"
 	"github.com/jackc/pgx/v5"
@@ -44,7 +46,7 @@ func (u *InventoryRepository) Add(ctx context.Context, inventory entity.Inventor
 	}()
 
 	// Вычитаем баланс пользователя
-	if err = u.updateUserBalance(ctx, tx, inventory.CustomerId, inventory.Type); err != nil {
+	if err = u.buyMerch(ctx, tx, inventory.CustomerId, inventory.Type); err != nil {
 		return err
 	}
 
@@ -56,7 +58,7 @@ func (u *InventoryRepository) Add(ctx context.Context, inventory entity.Inventor
 	return nil
 }
 
-func (u *InventoryRepository) updateUserBalance(
+func (u *InventoryRepository) buyMerch(
 	ctx context.Context, tx pgx.Tx, customerId string, merchType string,
 ) error {
 	var err error
@@ -68,12 +70,12 @@ func (u *InventoryRepository) updateUserBalance(
 		ToSql()
 	log.Printf("InventoryRepository - getByField - sql %s args %s \n", queryPrice, argsPrice)
 	if err != nil {
-		return fmt.Errorf("InventoryRepository - updateUserBalance - building price query: %w", err)
+		return fmt.Errorf("InventoryRepository - buyMerch - building price query: %w", err)
 	}
 
 	var price int
 	if err = tx.QueryRow(ctx, queryPrice, argsPrice...).Scan(&price); err != nil {
-		return fmt.Errorf("InventoryRepository - updateUserBalance - getting merch price: %w", err)
+		return fmt.Errorf("InventoryRepository - buyMerch - getting merch price: %w", err)
 	}
 
 	// Обновляем баланс пользователя
@@ -91,12 +93,15 @@ func (u *InventoryRepository) updateUserBalance(
 
 	log.Printf("InventoryRepository - getByField - sql %s args %s \n", queryAmount, argsAmount)
 	if err != nil {
-		return fmt.Errorf("updateUserBalance - building amount update query: %w", err)
+		return fmt.Errorf("buyMerch - building amount update query: %w", err)
 	}
 
 	var updatedAmount int
 	if err = tx.QueryRow(ctx, queryAmount, argsAmount...).Scan(&updatedAmount); err != nil {
-		return fmt.Errorf("updateUserBalance - updating user amount: %w", err)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return repoerrs.ErrLowBalance
+		}
+		return fmt.Errorf("buyMerch - updating user amount: %w", err)
 	}
 
 	return nil

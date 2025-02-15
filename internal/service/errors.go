@@ -15,6 +15,9 @@ var (
 	ErrCannotUpdateUser  = fmt.Errorf("cannot update user")
 
 	ErrInvalidMerchType = fmt.Errorf("invalid merch type")
+	ErrLowBalance       = fmt.Errorf("insufficient funds")
+
+	ErrSimilarId = fmt.Errorf("similar IDs")
 
 	ErrAlreadyExists = fmt.Errorf("already exists")
 	ErrCannotCreate  = fmt.Errorf("cannot create")
