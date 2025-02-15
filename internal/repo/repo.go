@@ -16,6 +16,7 @@ type User interface {
 
 type Inventory interface {
 	Add(ctx context.Context, inventory entity.Inventory) error
+	GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error)
 }
 
 type Transaction interface {
@@ -23,6 +24,7 @@ type Transaction interface {
 		ctx context.Context, input entity.Transaction,
 		isExist func(ctx context.Context, id string) (entity.User, error),
 	) error
+	GetByUserID(ctx context.Context, userId string) ([]entity.Transaction, error)
 }
 
 type Merch interface {
