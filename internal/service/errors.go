@@ -22,4 +22,6 @@ var (
 	ErrAlreadyExists = fmt.Errorf("already exists")
 	ErrCannotCreate  = fmt.Errorf("cannot create")
 	ErrCannotGet     = fmt.Errorf("cannot get")
+
+	ErrNotFound = fmt.Errorf("not found")
 )
