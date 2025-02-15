@@ -24,4 +24,7 @@ var (
 
 	ErrSimilarId = fmt.Errorf("similar IDs")
 	MsgSimilarId = "similar IDs"
+
+	ErrInvalidReq        = fmt.Errorf("Invalid request")
+	ErrInternalServerErr = fmt.Errorf("Internal server error")
 )
