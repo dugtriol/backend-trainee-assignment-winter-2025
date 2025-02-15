@@ -24,6 +24,44 @@ func NewTransactionRepository(db *postgres.Database) *TransactionRepository {
 	return &TransactionRepository{db}
 }
 
+func (r *TransactionRepository) GetByUserID(ctx context.Context, userId string) ([]entity.Transaction, error) {
+	query, args, err := r.Builder.
+		Select("*").
+		From(transactionTable).
+		Where(
+			squirrel.Or{
+				squirrel.Eq{"from_user": userId},
+				squirrel.Eq{"to_user": userId},
+			},
+		).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("TransactionRepo - GetByUserID - r.Builder: %v", err)
+	}
+
+	rows, err := r.Cluster.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("TransactionRepo - GetByUserID - r.Cluster.Query: %v", err)
+	}
+	defer rows.Close()
+
+	var transactions []entity.Transaction
+	for rows.Next() {
+		var txn entity.Transaction
+		if err = rows.Scan(
+			&txn.Id,
+			&txn.FromUser,
+			&txn.ToUser,
+			&txn.Amount,
+		); err != nil {
+			return nil, fmt.Errorf("TransactionRepo - GetByUserID - rows.Scan: %v", err)
+		}
+		transactions = append(transactions, txn)
+	}
+
+	return transactions, nil
+}
+
 func (u *TransactionRepository) Transfer(
 	ctx context.Context, input entity.Transaction,
 	isExist func(ctx context.Context, id string) (entity.User, error),

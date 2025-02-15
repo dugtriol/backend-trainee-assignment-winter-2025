@@ -129,6 +129,39 @@ func (u *InventoryRepository) updateInventory(
 	return nil
 }
 
+func (r *InventoryRepository) GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error) {
+	query, args, err := r.Builder.
+		Select("*").
+		From(inventoryTable).
+		Where(squirrel.Eq{"customer_id": userId}).
+		ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("InventoryRepo - GetByUserID - r.Builder: %v", err)
+	}
+
+	rows, err := r.Cluster.Query(ctx, query, args...)
+	if err != nil {
+		return nil, fmt.Errorf("InventoryRepo - GetByUserID - r.Cluster.Query: %v", err)
+	}
+	defer rows.Close()
+
+	var inventoryList []entity.Inventory
+	for rows.Next() {
+		var item entity.Inventory
+		if err = rows.Scan(
+			&item.Id,
+			&item.CustomerId,
+			&item.Type,
+			&item.Quantity,
+		); err != nil {
+			return nil, fmt.Errorf("InventoryRepo - GetByUserID - rows.Scan: %v", err)
+		}
+		inventoryList = append(inventoryList, item)
+	}
+
+	return inventoryList, nil
+}
+
 //func (u *InventoryRepository) GetByCustomerId(ctx context.Context, id string) (entity.Inventory, error) {
 //	return u.getByField(ctx, "customer_id", id)
 //}

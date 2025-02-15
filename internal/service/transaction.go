@@ -40,3 +40,19 @@ func (s *TransactionService) Transfer(
 	}
 	return nil
 }
+
+func (s *TransactionService) GetByUserId(
+	ctx context.Context, log *slog.Logger, userId string,
+) ([]entity.Transaction, error) {
+	var err error
+	var transactions []entity.Transaction
+	if transactions, err = s.transactionRepo.GetByUserID(ctx, userId); err != nil {
+		log.Error(fmt.Sprintf("Service - TransactionService - GetByUserId: %v", err))
+		return []entity.Transaction{}, err
+	}
+
+	if len(transactions) == 0 {
+		return []entity.Transaction{}, ErrNotFound
+	}
+	return transactions, nil
+}
