@@ -31,6 +31,7 @@ func NewRouter(ctx context.Context, log *slog.Logger, route *chi.Mux, services *
 				func(g chi.Router) {
 					g.Use(AuthMiddleware(ctx, log, services.User))
 					g.Get("/ping", Ping())
+					newInventoryRoutes(ctx, log, g, services.Inventory)
 				},
 			)
 		},
@@ -41,12 +42,12 @@ func Ping() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		output := &entity.User{}
 		var err error
-		if output, err = GetCurrentUserFromCTX(r.Context()); err != nil {
+		if output, err = GetCurrentUserFromContext(r.Context()); err != nil {
 			return
 		}
 
 		w.WriteHeader(http.StatusOK)
-		w.Header().Set("Content-Type", "text/plain")
+		//w.Header().Set("Content-Type", "text/plain")
 		_, err = w.Write([]byte(fmt.Sprintf("id - %s, name - %s", output.Id, output.Username)))
 		if err != nil {
 			return

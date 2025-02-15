@@ -14,6 +14,8 @@ var (
 	ErrInvalidPassword   = fmt.Errorf("invalid password")
 	ErrCannotUpdateUser  = fmt.Errorf("cannot update user")
 
+	ErrInvalidMerchType = fmt.Errorf("invalid merch type")
+
 	ErrAlreadyExists = fmt.Errorf("already exists")
 	ErrCannotCreate  = fmt.Errorf("cannot create")
 	ErrCannotGet     = fmt.Errorf("cannot get")
