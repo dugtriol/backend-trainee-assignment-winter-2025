@@ -29,7 +29,7 @@ func (u *UserRepository) Create(ctx context.Context, user entity.User) (entity.U
 	sql, args, err := u.Builder.Insert(userTable).Columns("username", "password").Values(
 		user.Username,
 		user.Password,
-	).ToSql()
+	).Suffix("RETURNING id, username, password, amount").ToSql()
 
 	log.Println(sql)
 	if err != nil {
