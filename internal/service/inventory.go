@@ -35,7 +35,7 @@ func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId
 	// проверка баланса пользователя
 	// покупка мерча
 	// изменение баланса у пользователя
-	if err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerId: userId, Type: item}); err != nil {
+	if _, err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerId: userId, Type: item}); err != nil {
 		if errors.Is(err, repoerrs.ErrLowBalance) {
 			return ErrLowBalance
 		}

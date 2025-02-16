@@ -15,7 +15,7 @@ type User interface {
 }
 
 type Inventory interface {
-	Add(ctx context.Context, inventory entity.Inventory) error
+	Add(ctx context.Context, inventory entity.Inventory) (entity.Inventory, error)
 	GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error)
 }
 

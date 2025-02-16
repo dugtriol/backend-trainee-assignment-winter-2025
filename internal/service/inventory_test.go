@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"backend-trainee-assignment-winter-2025/internal/entity"
-	"backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
 	"backend-trainee-assignment-winter-2025/internal/service"
 
 	"github.com/stretchr/testify/assert"
@@ -18,9 +17,9 @@ type MockInventoryRepo struct {
 	mock.Mock
 }
 
-func (m *MockInventoryRepo) Add(ctx context.Context, inventory entity.Inventory) error {
+func (m *MockInventoryRepo) Add(ctx context.Context, inventory entity.Inventory) (entity.Inventory, error) {
 	args := m.Called(ctx, inventory)
-	return args.Error(0)
+	return args.Get(0).(entity.Inventory), args.Error(1)
 }
 
 func (m *MockInventoryRepo) GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error) {
@@ -40,7 +39,11 @@ func TestGetItem_Success(t *testing.T) {
 		),
 	)
 
-	mockRepo.On("Add", mock.Anything, entity.Inventory{CustomerId: "user123", Type: "hat"}).Return(nil)
+	mockRepo.On("Add", mock.Anything, entity.Inventory{CustomerId: "user123", Type: "hat"}).Return(
+		entity.Inventory{
+			CustomerId: "user123", Type: "hat", Quantity: 1,
+		}, nil,
+	)
 
 	err := serviceInventory.GetItem(ctx, log, "user123", "hat")
 
@@ -64,7 +67,7 @@ func TestGetItem_LowBalance(t *testing.T) {
 		"Add",
 		mock.Anything,
 		entity.Inventory{CustomerId: "user123", Type: "hat"},
-	).Return(repoerrs.ErrLowBalance)
+	).Return(entity.Inventory{}, service.ErrLowBalance)
 
 	err := serviceInventory.GetItem(ctx, log, "user123", "hat")
 
