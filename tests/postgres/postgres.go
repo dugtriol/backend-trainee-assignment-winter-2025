@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	ConnTestDatabase = "postgres://postgres:password@localhost:5433/testshop"
+	ConnTestDatabase = "postgres://postgres:password@localhost:5432/shop"
 )
 
 type TestDatabase struct {
@@ -33,7 +33,7 @@ func NewTestDatabase(configPath string) *TestDatabase {
 
 	database, err := postgres.New(
 		context.Background(),
-		cfg.Conn,
+		ConnTestDatabase,
 		postgres.MaxPoolSize(cfg.MaxPoolSize),
 		postgres.ConnAttempts(cfg.Database.ConnAttempts),
 		postgres.ConnTimeout(cfg.Database.ConnTimeout),
@@ -60,9 +60,9 @@ func (d *TestDatabase) TearDown(t *testing.T) {
 	defer d.Unlock()
 	// можно закомментировать вызов Truncate, чтобы
 	// посмотреть результаты действий над БД
-	//if err := d.Truncate(context.Background()); err != nil {
-	//	panic(err)
-	//}
+	if err := d.Truncate(context.Background()); err != nil {
+		panic(err)
+	}
 }
 
 func (d *TestDatabase) AddMerch(ctx context.Context) error {

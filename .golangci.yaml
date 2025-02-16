@@ -1,0 +1,10 @@
+# .golangci.yaml
+
+linters:
+  enable:
+    - unparam       # Поиск неиспользуемых параметров функций
+    - unused        # Поиск неиспользуемых переменных и импортов
+    - stylecheck
+run:
+  tests: false   # Линтер работает и на тестах
+  timeout: 5m   # Устанавливает тайм-аут
