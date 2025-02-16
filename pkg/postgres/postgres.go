@@ -62,7 +62,7 @@ func New(ctx context.Context, connString string, opts ...Option) (*Database, err
 		db.connAttempts--
 	}
 	if err != nil {
-		fmt.Printf("database - New - pgxpool.NewWithConfig: %w", err)
+		fmt.Printf("database - New - pgxpool.NewWithConfig: %v", err)
 		return nil, err
 	}
 	return db, nil
