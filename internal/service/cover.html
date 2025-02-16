@@ -1,0 +1,510 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>service: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">backend-trainee-assignment-winter-2025/internal/service/info.go (91.3%)</option>
+				
+				<option value="file1">backend-trainee-assignment-winter-2025/internal/service/inventory.go (70.0%)</option>
+				
+				<option value="file2">backend-trainee-assignment-winter-2025/internal/service/service.go (0.0%)</option>
+				
+				<option value="file3">backend-trainee-assignment-winter-2025/internal/service/transaction.go (83.3%)</option>
+				
+				<option value="file4">backend-trainee-assignment-winter-2025/internal/service/user.go (83.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package service
+
+import (
+        "context"
+        "log/slog"
+
+        "backend-trainee-assignment-winter-2025/internal/entity"
+)
+
+type InfoService struct {
+        //transactionRepo repo.Transaction
+        //inventoryRepo   repo.Inventory
+        //userRepo        repo.User
+}
+
+func NewInfoService() *InfoService <span class="cov8" title="1">{
+        return &amp;InfoService{}
+}</span>
+
+func (s *InfoService) Get(
+        ctx context.Context, log *slog.Logger, userId string,
+        inventories []entity.Inventory,
+        transactions []entity.Transaction,
+) ([]InfoInventory, CoinHistory, error) <span class="cov8" title="1">{
+        var err error
+        var infoInventory []InfoInventory
+        var coinHistory CoinHistory
+
+        if len(inventories) != 0 </span><span class="cov8" title="1">{
+                if infoInventory, err = s.getInventoryArray(inventories); err != nil </span><span class="cov0" title="0">{
+                        return []InfoInventory{}, CoinHistory{}, err
+                }</span>
+        }
+
+        <span class="cov8" title="1">if len(transactions) != 0 </span><span class="cov8" title="1">{
+                if coinHistory, err = s.getTransactionArray(transactions, userId); err != nil </span><span class="cov0" title="0">{
+                        return []InfoInventory{}, CoinHistory{}, err
+                }</span>
+        }
+        <span class="cov8" title="1">return infoInventory, coinHistory, nil</span>
+}
+
+func (s *InfoService) getInventoryArray(inventories []entity.Inventory) ([]InfoInventory, error) <span class="cov8" title="1">{
+        infoInventories := make([]InfoInventory, len(inventories))
+        for i, inv := range inventories </span><span class="cov8" title="1">{
+                infoInventories[i] = InfoInventory{
+                        Type:     inv.Type,
+                        Quantity: inv.Quantity,
+                }
+        }</span>
+
+        <span class="cov8" title="1">return infoInventories, nil</span>
+}
+
+type InfoInventory struct {
+        Type     string `json:"type"`
+        Quantity int    `json:"quantity"`
+}
+
+type CoinHistory struct {
+        Received []TransactionReceived `json:"received"`
+        Sent     []TransactionSent     `json:"sent"`
+}
+
+type TransactionReceived struct {
+        FromUser string `json:"fromUser"`
+        Amount   int    `json:"amount"`
+}
+
+type TransactionSent struct {
+        ToUser string `json:"toUser"`
+        Amount int    `json:"amount"`
+}
+
+func (s *InfoService) getTransactionArray(transactions []entity.Transaction, userId string) (CoinHistory, error) <span class="cov8" title="1">{
+        trReceived := make([]TransactionReceived, 0)
+        trSent := make([]TransactionSent, 0)
+
+        coinHistoryArr := CoinHistory{
+                Received: trReceived,
+                Sent:     trSent,
+        }
+
+        for _, inv := range transactions </span><span class="cov8" title="1">{
+                if inv.FromUser == userId </span><span class="cov8" title="1">{
+                        coinHistoryArr.Sent = append(
+                                coinHistoryArr.Sent, TransactionSent{
+                                        ToUser: inv.ToUser,
+                                        Amount: inv.Amount,
+                                },
+                        )
+                }</span> else<span class="cov8" title="1"> {
+                        coinHistoryArr.Received = append(
+                                coinHistoryArr.Received, TransactionReceived{
+                                        FromUser: inv.FromUser,
+                                        Amount:   inv.Amount,
+                                },
+                        )
+                }</span>
+        }
+
+        <span class="cov8" title="1">return coinHistoryArr, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "log/slog"
+
+        "backend-trainee-assignment-winter-2025/internal/entity"
+        "backend-trainee-assignment-winter-2025/internal/repo"
+        "backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
+)
+
+type InventoryService struct {
+        inventoryRepo repo.Inventory
+}
+
+func NewInventoryService(inventoryRepo repo.Inventory) *InventoryService <span class="cov8" title="1">{
+        return &amp;InventoryService{inventoryRepo: inventoryRepo}
+}</span>
+
+func (s *InventoryService) checkParamItem(item string) bool <span class="cov8" title="1">{
+        if item == "" || len(item) == 0 </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov8" title="1">return true</span>
+}
+
+func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId, item string) error <span class="cov8" title="1">{
+        if !s.checkParamItem(item) </span><span class="cov0" title="0">{
+                log.Error(fmt.Sprintf("Service - InventoryService - GetItem - сheckParamItem: %s", item))
+                return ErrInvalidMerchType
+        }</span>
+        // проверка корректности типа мерча
+        // проверка баланса пользователя
+        // покупка мерча
+        // изменение баланса у пользователя
+        <span class="cov8" title="1">if _, err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerId: userId, Type: item}); err != n</span><span class="cov8" title="1">il {
+                if errors.Is(err, repoerrs.ErrLowBalance) </span><span class="cov8" title="1">{
+                        return ErrLowBalance
+                }</span>
+                <span class="cov0" title="0">return err</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *InventoryService) GetByUserId(ctx context.Context, log *slog.Logger, userId string) (
+        []entity.Inventory, error,
+) <span class="cov8" title="1">{
+        var err error
+        var inventories []entity.Inventory
+        if inventories, err = s.inventoryRepo.GetByUserID(ctx, userId); err != nil </span><span class="cov0" title="0">{
+                log.Error(fmt.Sprintf("Service - InventoryService - GetByUserId: %v", err))
+                return []entity.Inventory{}, err
+        }</span>
+
+        <span class="cov8" title="1">if len(inventories) == 0 </span><span class="cov8" title="1">{
+                return []entity.Inventory{}, ErrNotFound
+        }</span>
+        <span class="cov8" title="1">return inventories, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package service
+
+import (
+        "context"
+        "log/slog"
+
+        "backend-trainee-assignment-winter-2025/internal/entity"
+        "backend-trainee-assignment-winter-2025/internal/repo"
+)
+
+type AuthInput struct {
+        Username string
+        Password string
+}
+
+type User interface {
+        Auth(ctx context.Context, log *slog.Logger, input AuthInput) (string, error)
+        GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error)
+}
+
+type Inventory interface {
+        GetItem(ctx context.Context, log *slog.Logger, userId, item string) error
+        GetByUserId(ctx context.Context, log *slog.Logger, userId string) (
+                []entity.Inventory, error,
+        )
+}
+
+type TransactionInput struct {
+        FromUserId string
+        ToUserId   string
+        Amount     int
+}
+
+type Transaction interface {
+        Transfer(
+                ctx context.Context, log *slog.Logger, input TransactionInput,
+        ) error
+        GetByUserId(
+                ctx context.Context, log *slog.Logger, userId string,
+        ) ([]entity.Transaction, error)
+}
+
+type Info interface {
+        Get(
+                ctx context.Context, log *slog.Logger, userId string,
+                inventories []entity.Inventory,
+                transactions []entity.Transaction,
+        ) ([]InfoInventory, CoinHistory, error)
+}
+type Services struct {
+        User
+        Inventory
+        Transaction
+        Info
+}
+
+type ServicesDependencies struct {
+        Repos *repo.Repositories
+}
+
+func NewServices(dep ServicesDependencies) *Services <span class="cov0" title="0">{
+        return &amp;Services{
+                User:        NewUserService(dep.Repos.User),
+                Inventory:   NewInventoryService(dep.Repos.Inventory),
+                Transaction: NewTransactionService(dep.Repos.Transaction, dep.Repos.User),
+                Info:        NewInfoService(),
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "log/slog"
+
+        "backend-trainee-assignment-winter-2025/internal/entity"
+        "backend-trainee-assignment-winter-2025/internal/repo"
+        "backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
+)
+
+type TransactionService struct {
+        transactionRepo repo.Transaction
+        userRepo        repo.User
+}
+
+func NewTransactionService(transactionRepo repo.Transaction, userRepo repo.User) *TransactionService <span class="cov8" title="1">{
+        return &amp;TransactionService{transactionRepo: transactionRepo, userRepo: userRepo}
+}</span>
+
+func (s *TransactionService) Transfer(
+        ctx context.Context, log *slog.Logger, input TransactionInput,
+) error <span class="cov8" title="1">{
+        if input.FromUserId == input.ToUserId </span><span class="cov8" title="1">{
+                return ErrSimilarId
+        }</span>
+        <span class="cov8" title="1">transaction := entity.Transaction{
+                FromUser: input.FromUserId,
+                ToUser:   input.ToUserId,
+                Amount:   input.Amount,
+        }
+        if err := s.transactionRepo.Transfer(ctx, transaction, s.userRepo.GetById); err != nil </span><span class="cov8" title="1">{
+                log.Error(fmt.Sprintf("Service - TransactionService - Transfer - transactionRepo.Transfer: %v", err))
+                if errors.Is(err, repoerrs.ErrLowBalance) </span><span class="cov8" title="1">{
+                        return ErrLowBalance
+                }</span>
+                <span class="cov0" title="0">return err</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *TransactionService) GetByUserId(
+        ctx context.Context, log *slog.Logger, userId string,
+) ([]entity.Transaction, error) <span class="cov8" title="1">{
+        var err error
+        var transactions []entity.Transaction
+        if transactions, err = s.transactionRepo.GetByUserID(ctx, userId); err != nil </span><span class="cov0" title="0">{
+                log.Error(fmt.Sprintf("Service - TransactionService - GetByUserId: %v", err))
+                return []entity.Transaction{}, err
+        }</span>
+
+        <span class="cov8" title="1">if len(transactions) == 0 </span><span class="cov8" title="1">{
+                return []entity.Transaction{}, ErrNotFound
+        }</span>
+        <span class="cov8" title="1">return transactions, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package service
+
+import (
+        "context"
+        "errors"
+        "fmt"
+        "log/slog"
+
+        "backend-trainee-assignment-winter-2025/internal/entity"
+        "backend-trainee-assignment-winter-2025/internal/repo"
+        "backend-trainee-assignment-winter-2025/internal/repo/repoerrs"
+        "backend-trainee-assignment-winter-2025/pkg/hasher"
+        "backend-trainee-assignment-winter-2025/pkg/token"
+)
+
+type UserService struct {
+        userRepo repo.User
+}
+
+func NewUserService(userRepo repo.User) *UserService <span class="cov8" title="1">{
+        return &amp;UserService{userRepo: userRepo}
+}</span>
+
+func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInput) (string, error) <span class="cov8" title="1">{
+        log.Info(fmt.Sprintf("Service - UserService - Auth"))
+        var err error
+        var tokenString string
+        var output entity.User
+        output, err = s.isExist(ctx, log, input)
+
+        if errors.Is(err, ErrInvalidPassword) </span><span class="cov8" title="1">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">if err == nil </span><span class="cov8" title="1">{
+                if tokenString, err = token.Create(output.Id); err != nil </span><span class="cov0" title="0">{
+                        return "", err
+                }</span>
+                <span class="cov8" title="1">return tokenString, err</span>
+        }
+
+        <span class="cov8" title="1">if tokenString, err = s.register(ctx, log, input); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">return tokenString, err</span>
+}
+
+func (s *UserService) GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error) <span class="cov8" title="1">{
+        var err error
+        log.Info(fmt.Sprintf("Service - UserService - GetById"))
+        output, err := s.userRepo.GetById(ctx, id)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Error(fmt.Sprintf("Service - UserService - GetById - GetById: %v", err))
+                return entity.User{}, ErrUserNotFound
+        }</span>
+        <span class="cov8" title="1">return output, err</span>
+}
+
+func (s *UserService) register(ctx context.Context, log *slog.Logger, input AuthInput) (string, error) <span class="cov8" title="1">{
+        var err error
+        var tokenString string
+        log.Info(fmt.Sprintf("Service - UserService - register"))
+        password, err := hasher.HashPassword(input.Password)
+        if err != nil </span><span class="cov0" title="0">{
+                return "", ErrCannotHashPassword
+        }</span>
+        <span class="cov8" title="1">user := entity.User{
+                Username: input.Username,
+                Password: password,
+        }
+        var output entity.User
+        output, err = s.userRepo.Create(ctx, user)
+        if err != nil </span><span class="cov0" title="0">{
+                if errors.Is(err, repoerrs.ErrAlreadyExists) </span><span class="cov0" title="0">{
+                        return "", ErrUserAlreadyExists
+                }</span>
+                <span class="cov0" title="0">log.Error(fmt.Sprintf("UserService.Register - c.userRepo.Register: %v", err))
+                return "", ErrCannotCreateUser</span>
+        }
+
+        <span class="cov8" title="1">if tokenString, err = token.Create(output.Id); err != nil </span><span class="cov0" title="0">{
+                return "", err
+        }</span>
+        <span class="cov8" title="1">return tokenString, err</span>
+}
+
+func (s *UserService) isExist(ctx context.Context, log *slog.Logger, input AuthInput) (entity.User, error) <span class="cov8" title="1">{
+        var err error
+        log.Info(fmt.Sprintf("Service - UserService - isExist"))
+        output, err := s.userRepo.GetByUsername(ctx, input.Username)
+        if err != nil </span><span class="cov8" title="1">{
+                log.Error(fmt.Sprintf("Service - UserService - isExist - GetByUsername: %v", err))
+                return entity.User{}, ErrUserNotFound
+        }</span>
+
+        <span class="cov8" title="1">if err = hasher.CheckPassword(input.Password, output.Password); err != nil </span><span class="cov8" title="1">{
+                log.Error(fmt.Sprintf("Service - UserService - isExist - CheckPassword: %v", err))
+                return entity.User{}, ErrInvalidPassword
+        }</span>
+
+        <span class="cov8" title="1">return output, err</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

@@ -17,5 +17,5 @@ VALUES ('t-shirt', 80),
        ('umbrella', 200),
        ('socks', 10),
        ('wallet', 50),
-       ('pink-hoody', 500);
+       ('pink-hoody', 500) ON CONFLICT (name) DO NOTHING;
 COMMIT;
