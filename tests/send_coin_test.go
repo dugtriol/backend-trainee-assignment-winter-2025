@@ -30,10 +30,10 @@ func TestTransferCoin_Success(t *testing.T) {
 	recipientResp, err := repos.User.Create(ctx, recipient)
 	require.NoError(t, err)
 
-	transfer := fixtures.Transaction().FromUser(senderResp.Id).ToUser(recipientResp.Id).Amount(30).V()
+	transfer := fixtures.Transaction().FromUser(senderResp.ID).ToUser(recipientResp.ID).Amount(30).V()
 
 	// act
-	err = repos.Transaction.Transfer(ctx, transfer, repos.User.GetById)
+	err = repos.Transaction.Transfer(ctx, transfer, repos.User.GetByID)
 
 	// assert
 	require.NoError(t, err)
@@ -55,10 +55,10 @@ func TestTransferCoin_InsufficientFunds(t *testing.T) {
 	recipientResp, err := repos.User.Create(ctx, recipient)
 	require.NoError(t, err)
 
-	transfer := fixtures.Transaction().FromUser(senderResp.Id).ToUser(recipientResp.Id).Amount(1050).V()
+	transfer := fixtures.Transaction().FromUser(senderResp.ID).ToUser(recipientResp.ID).Amount(1050).V()
 
 	// act
-	err = repos.Transaction.Transfer(ctx, transfer, repos.User.GetById)
+	err = repos.Transaction.Transfer(ctx, transfer, repos.User.GetByID)
 
 	// assert
 	require.Error(t, err)

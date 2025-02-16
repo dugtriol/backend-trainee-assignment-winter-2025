@@ -24,7 +24,7 @@ func NewMerchRepository(db *postgres.Database) *MerchRepository {
 	return &MerchRepository{db}
 }
 
-func (u *MerchRepository) GetById(ctx context.Context, id string) (entity.Merch, error) {
+func (u *MerchRepository) GetByID(ctx context.Context, id string) (entity.Merch, error) {
 	return u.getByField(ctx, "id", id)
 }
 
@@ -43,7 +43,7 @@ func (u *MerchRepository) getByField(ctx context.Context, field, value string) (
 
 	var output entity.Merch
 	err = u.Cluster.QueryRow(ctx, sql, args...).Scan(
-		&output.Id,
+		&output.ID,
 		&output.Name,
 		&output.Price,
 	)

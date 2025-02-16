@@ -18,7 +18,7 @@ func NewInfoService() *InfoService {
 }
 
 func (s *InfoService) Get(
-	ctx context.Context, log *slog.Logger, userId string,
+	ctx context.Context, log *slog.Logger, userID string,
 	inventories []entity.Inventory,
 	transactions []entity.Transaction,
 ) ([]InfoInventory, CoinHistory, error) {
@@ -27,20 +27,20 @@ func (s *InfoService) Get(
 	var coinHistory CoinHistory
 
 	if len(inventories) != 0 {
-		if infoInventory, err = s.getInventoryArray(inventories); err != nil {
+		if infoInventory = s.getInventoryArray(inventories); err != nil {
 			return []InfoInventory{}, CoinHistory{}, err
 		}
 	}
 
 	if len(transactions) != 0 {
-		if coinHistory, err = s.getTransactionArray(transactions, userId); err != nil {
+		if coinHistory = s.getTransactionArray(transactions, userID); err != nil {
 			return []InfoInventory{}, CoinHistory{}, err
 		}
 	}
 	return infoInventory, coinHistory, nil
 }
 
-func (s *InfoService) getInventoryArray(inventories []entity.Inventory) ([]InfoInventory, error) {
+func (s *InfoService) getInventoryArray(inventories []entity.Inventory) []InfoInventory {
 	infoInventories := make([]InfoInventory, len(inventories))
 	for i, inv := range inventories {
 		infoInventories[i] = InfoInventory{
@@ -49,7 +49,7 @@ func (s *InfoService) getInventoryArray(inventories []entity.Inventory) ([]InfoI
 		}
 	}
 
-	return infoInventories, nil
+	return infoInventories
 }
 
 type InfoInventory struct {
@@ -72,7 +72,7 @@ type TransactionSent struct {
 	Amount int    `json:"amount"`
 }
 
-func (s *InfoService) getTransactionArray(transactions []entity.Transaction, userId string) (CoinHistory, error) {
+func (s *InfoService) getTransactionArray(transactions []entity.Transaction, userID string) CoinHistory {
 	trReceived := make([]TransactionReceived, 0)
 	trSent := make([]TransactionSent, 0)
 
@@ -82,7 +82,7 @@ func (s *InfoService) getTransactionArray(transactions []entity.Transaction, use
 	}
 
 	for _, inv := range transactions {
-		if inv.FromUser == userId {
+		if inv.FromUser == userID {
 			coinHistoryArr.Sent = append(
 				coinHistoryArr.Sent, TransactionSent{
 					ToUser: inv.ToUser,
@@ -99,5 +99,5 @@ func (s *InfoService) getTransactionArray(transactions []entity.Transaction, use
 		}
 	}
 
-	return coinHistoryArr, nil
+	return coinHistoryArr
 }

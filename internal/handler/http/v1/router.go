@@ -42,7 +42,7 @@ func NewRouter(ctx context.Context, log *slog.Logger, route *chi.Mux, services *
 
 func Ping() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		output := &entity.User{}
+		var output *entity.User
 		var err error
 		if output, err = GetCurrentUserFromContext(r.Context()); err != nil {
 			return
@@ -50,7 +50,7 @@ func Ping() http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 		//w.Header().Set("Content-Type", "text/plain")
-		_, err = w.Write([]byte(fmt.Sprintf("id - %s, name - %s", output.Id, output.Username)))
+		_, err = w.Write([]byte(fmt.Sprintf("id - %s, name - %s", output.ID, output.Username)))
 		if err != nil {
 			return
 		}

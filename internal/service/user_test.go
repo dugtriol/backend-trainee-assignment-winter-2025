@@ -26,7 +26,7 @@ func (m *MockUserRepo) Create(ctx context.Context, user entity.User) (entity.Use
 	return args.Get(0).(entity.User), args.Error(1)
 }
 
-func (m *MockUserRepo) GetById(ctx context.Context, id string) (entity.User, error) {
+func (m *MockUserRepo) GetByID(ctx context.Context, id string) (entity.User, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(entity.User), args.Error(1)
 }
@@ -44,7 +44,7 @@ func TestUserService_Auth_Success(t *testing.T) {
 
 	ctx := context.Background()
 	hashedPassword, _ := hasher.HashPassword("password123")
-	user := entity.User{Id: "user123", Username: "testuser", Password: hashedPassword}
+	user := entity.User{ID: "user123", Username: "testuser", Password: hashedPassword}
 
 	mockRepo.On("GetByUsername", mock.Anything, "testuser").Return(user, nil)
 
@@ -73,7 +73,7 @@ func TestUserService_Auth_InvalidPassword(t *testing.T) {
 
 	ctx := context.Background()
 	hashedPassword, _ := hasher.HashPassword("correct_password")
-	user := entity.User{Id: "user123", Username: "testuser", Password: hashedPassword}
+	user := entity.User{ID: "user123", Username: "testuser", Password: hashedPassword}
 
 	mockRepo.On("GetByUsername", mock.Anything, "testuser").Return(user, nil)
 
@@ -103,7 +103,7 @@ func TestUserService_Register_Success(t *testing.T) {
 	ctx := context.Background()
 	input := AuthInput{Username: "newuser", Password: "password123"}
 	hashedPassword, _ := hasher.HashPassword(input.Password)
-	createdUser := entity.User{Id: "user456", Username: input.Username, Password: hashedPassword}
+	createdUser := entity.User{ID: "user456", Username: input.Username, Password: hashedPassword}
 
 	mockRepo.On("GetByUsername", mock.Anything, input.Username).Return(entity.User{}, ErrUserNotFound)
 	mockRepo.On("Create", mock.Anything, mock.Anything).Return(createdUser, nil)
@@ -127,10 +127,10 @@ func TestUserService_GetById_Success(t *testing.T) {
 		),
 	)
 
-	user := entity.User{Id: "user789", Username: "someuser", Password: "hashedpass"}
-	mockRepo.On("GetById", ctx, "user789").Return(user, nil)
+	user := entity.User{ID: "user789", Username: "someuser", Password: "hashedpass"}
+	mockRepo.On("GetByID", ctx, "user789").Return(user, nil)
 
-	result, err := userService.GetById(ctx, log, "user789")
+	result, err := userService.GetByID(ctx, log, "user789")
 
 	assert.NoError(t, err)
 	assert.Equal(t, user, result)
@@ -149,9 +149,9 @@ func TestUserService_GetById_NotFound(t *testing.T) {
 		),
 	)
 
-	mockRepo.On("GetById", ctx, "nonexistent").Return(entity.User{}, ErrUserNotFound)
+	mockRepo.On("GetByID", ctx, "nonexistent").Return(entity.User{}, ErrUserNotFound)
 
-	_, err := userService.GetById(ctx, log, "nonexistent")
+	_, err := userService.GetByID(ctx, log, "nonexistent")
 
 	assert.Error(t, err)
 	assert.Equal(t, ErrUserNotFound, err)

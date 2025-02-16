@@ -24,24 +24,24 @@ func NewTransactionRepository(db *postgres.Database) *TransactionRepository {
 	return &TransactionRepository{db}
 }
 
-func (r *TransactionRepository) GetByUserID(ctx context.Context, userId string) ([]entity.Transaction, error) {
-	query, args, err := r.Builder.
+func (u *TransactionRepository) GetByUserID(ctx context.Context, userID string) ([]entity.Transaction, error) {
+	query, args, err := u.Builder.
 		Select("*").
 		From(transactionTable).
 		Where(
 			squirrel.Or{
-				squirrel.Eq{"from_user": userId},
-				squirrel.Eq{"to_user": userId},
+				squirrel.Eq{"from_user": userID},
+				squirrel.Eq{"to_user": userID},
 			},
 		).
 		ToSql()
 	if err != nil {
-		return nil, fmt.Errorf("TransactionRepo - GetByUserID - r.Builder: %v", err)
+		return nil, fmt.Errorf("TransactionRepo - GetByUserID - u.Builder: %v", err)
 	}
 
-	rows, err := r.Cluster.Query(ctx, query, args...)
+	rows, err := u.Cluster.Query(ctx, query, args...)
 	if err != nil {
-		return nil, fmt.Errorf("TransactionRepo - GetByUserID - r.Cluster.Query: %v", err)
+		return nil, fmt.Errorf("TransactionRepo - GetByUserID - u.Cluster.Query: %v", err)
 	}
 	defer rows.Close()
 
@@ -49,7 +49,7 @@ func (r *TransactionRepository) GetByUserID(ctx context.Context, userId string) 
 	for rows.Next() {
 		var txn entity.Transaction
 		if err = rows.Scan(
-			&txn.Id,
+			&txn.ID,
 			&txn.FromUser,
 			&txn.ToUser,
 			&txn.Amount,
@@ -108,13 +108,13 @@ func (u *TransactionRepository) Transfer(
 	return nil
 }
 
-func (u *TransactionRepository) withdrawAmount(ctx context.Context, tx pgx.Tx, fromUserId string, amount int) error {
+func (u *TransactionRepository) withdrawAmount(ctx context.Context, tx pgx.Tx, fromUserID string, amount int) error {
 	query, args, err := u.Builder.
 		Update(userTable).
 		Set("amount", squirrel.Expr("amount - ?", amount)).
 		Where(
 			squirrel.And{
-				squirrel.Eq{"id": fromUserId},
+				squirrel.Eq{"id": fromUserID},
 				squirrel.GtOrEq{"amount": amount},
 			},
 		).
@@ -135,11 +135,11 @@ func (u *TransactionRepository) withdrawAmount(ctx context.Context, tx pgx.Tx, f
 	return nil
 }
 
-func (u *TransactionRepository) depositAmount(ctx context.Context, tx pgx.Tx, toUserId string, amount int) error {
+func (u *TransactionRepository) depositAmount(ctx context.Context, tx pgx.Tx, toUserID string, amount int) error {
 	query, args, err := u.Builder.
 		Update(userTable).
 		Set("amount", squirrel.Expr("amount + ?", amount)).
-		Where(squirrel.Eq{"id": toUserId}).
+		Where(squirrel.Eq{"id": toUserID}).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("depositAmount - building query: %w", err)
@@ -154,12 +154,12 @@ func (u *TransactionRepository) depositAmount(ctx context.Context, tx pgx.Tx, to
 }
 
 func (u *TransactionRepository) addTransaction(
-	ctx context.Context, tx pgx.Tx, fromUserId, toUserId string, amount int,
+	ctx context.Context, tx pgx.Tx, fromUserID, toUserID string, amount int,
 ) error {
 	query, args, err := u.Builder.
 		Insert(transactionTable).
 		Columns("from_user", "to_user", "amount").
-		Values(fromUserId, toUserId, amount).
+		Values(fromUserID, toUserID, amount).
 		ToSql()
 	if err != nil {
 		return fmt.Errorf("addTransaction - building query: %w", err)

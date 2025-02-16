@@ -14,14 +14,14 @@ const (
 )
 
 type Token interface {
-	Create(userId string) (string, error)
+	Create(userID string) (string, error)
 	Check(tokenString string) bool
 }
 
-func Create(userId string) (string, error) {
+func Create(userID string) (string, error) {
 	token := jwt.NewWithClaims(
 		jwt.SigningMethodHS256,
-		jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)), Subject: userId},
+		jwt.RegisteredClaims{ExpiresAt: jwt.NewNumericDate(time.Now().Add(TokenExp)), Subject: userID},
 	)
 	signedString, err := token.SignedString([]byte(TokenSecretKey))
 	if err != nil {

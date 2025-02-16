@@ -15,19 +15,19 @@ type AuthInput struct {
 
 type User interface {
 	Auth(ctx context.Context, log *slog.Logger, input AuthInput) (string, error)
-	GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error)
+	GetByID(ctx context.Context, log *slog.Logger, id string) (entity.User, error)
 }
 
 type Inventory interface {
-	GetItem(ctx context.Context, log *slog.Logger, userId, item string) error
-	GetByUserId(ctx context.Context, log *slog.Logger, userId string) (
+	GetItem(ctx context.Context, log *slog.Logger, userID, item string) error
+	GetByUserID(ctx context.Context, log *slog.Logger, userID string) (
 		[]entity.Inventory, error,
 	)
 }
 
 type TransactionInput struct {
-	FromUserId string
-	ToUserId   string
+	FromUserID string
+	ToUserID   string
 	Amount     int
 }
 
@@ -35,14 +35,14 @@ type Transaction interface {
 	Transfer(
 		ctx context.Context, log *slog.Logger, input TransactionInput,
 	) error
-	GetByUserId(
-		ctx context.Context, log *slog.Logger, userId string,
+	GetByUserID(
+		ctx context.Context, log *slog.Logger, userID string,
 	) ([]entity.Transaction, error)
 }
 
 type Info interface {
 	Get(
-		ctx context.Context, log *slog.Logger, userId string,
+		ctx context.Context, log *slog.Logger, userID string,
 		inventories []entity.Inventory,
 		transactions []entity.Transaction,
 	) ([]InfoInventory, CoinHistory, error)

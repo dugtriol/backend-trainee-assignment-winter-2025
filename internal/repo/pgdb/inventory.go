@@ -47,12 +47,12 @@ func (u *InventoryRepository) Add(ctx context.Context, inventory entity.Inventor
 
 	var output entity.Inventory
 	// Вычитаем баланс пользователя
-	if err = u.buyMerch(ctx, tx, inventory.CustomerId, inventory.Type); err != nil {
+	if err = u.buyMerch(ctx, tx, inventory.CustomerID, inventory.Type); err != nil {
 		return entity.Inventory{}, err
 	}
 
 	// Обновляем инвентарь
-	if output, err = u.updateInventory(ctx, tx, inventory.CustomerId, inventory.Type); err != nil {
+	if output, err = u.updateInventory(ctx, tx, inventory.CustomerID, inventory.Type); err != nil {
 		return entity.Inventory{}, err
 	}
 
@@ -60,7 +60,7 @@ func (u *InventoryRepository) Add(ctx context.Context, inventory entity.Inventor
 }
 
 func (u *InventoryRepository) buyMerch(
-	ctx context.Context, tx pgx.Tx, customerId string, merchType string,
+	ctx context.Context, tx pgx.Tx, customerID string, merchType string,
 ) error {
 	var err error
 	// Получаем цену товара
@@ -85,7 +85,7 @@ func (u *InventoryRepository) buyMerch(
 		Set("amount", squirrel.Expr("amount - ?", price)).
 		Where(
 			squirrel.And{
-				squirrel.Eq{"id": customerId},
+				squirrel.Eq{"id": customerID},
 				squirrel.GtOrEq{"amount": price}, // Проверяем, хватает ли баланса
 			},
 		).
@@ -110,11 +110,11 @@ func (u *InventoryRepository) buyMerch(
 
 // Добавляет товар в инвентарь или увеличивает количество
 func (u *InventoryRepository) updateInventory(
-	ctx context.Context, tx pgx.Tx, customerId string, merchType string,
+	ctx context.Context, tx pgx.Tx, customerID string, merchType string,
 ) (entity.Inventory, error) {
 	queryInventory, argsInventory, err := u.Builder.Insert(inventoryTable).
 		Columns("customer_id", "type", "quantity").
-		Values(customerId, merchType, 1).
+		Values(customerID, merchType, 1).
 		Suffix("ON CONFLICT (customer_id, type) DO UPDATE SET quantity = inventories.quantity + 1").
 		Suffix("RETURNING id, customer_id, type, quantity").
 		ToSql()
@@ -126,8 +126,8 @@ func (u *InventoryRepository) updateInventory(
 
 	var output entity.Inventory
 	err = tx.QueryRow(ctx, queryInventory, argsInventory...).Scan(
-		&output.Id,
-		&output.CustomerId,
+		&output.ID,
+		&output.CustomerID,
 		&output.Type,
 		&output.Quantity,
 	)
@@ -139,11 +139,11 @@ func (u *InventoryRepository) updateInventory(
 	return output, nil
 }
 
-func (r *InventoryRepository) GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error) {
+func (r *InventoryRepository) GetByUserID(ctx context.Context, userID string) ([]entity.Inventory, error) {
 	query, args, err := r.Builder.
 		Select("*").
 		From(inventoryTable).
-		Where(squirrel.Eq{"customer_id": userId}).
+		Where(squirrel.Eq{"customer_id": userID}).
 		ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("InventoryRepo - GetByUserID - r.Builder: %v", err)
@@ -159,8 +159,8 @@ func (r *InventoryRepository) GetByUserID(ctx context.Context, userId string) ([
 	for rows.Next() {
 		var item entity.Inventory
 		if err = rows.Scan(
-			&item.Id,
-			&item.CustomerId,
+			&item.ID,
+			&item.CustomerID,
 			&item.Type,
 			&item.Quantity,
 		); err != nil {

@@ -44,7 +44,7 @@ func (m *MockUserRepo) Create(ctx context.Context, user entity.User) (entity.Use
 	return args.Get(0).(entity.User), args.Error(1)
 }
 
-func (m *MockUserRepo) GetById(ctx context.Context, id string) (entity.User, error) {
+func (m *MockUserRepo) GetByID(ctx context.Context, id string) (entity.User, error) {
 	args := m.Called(ctx, id)
 	return args.Get(0).(entity.User), args.Error(1)
 }
@@ -62,8 +62,8 @@ func TestTransactionService_Transfer_Success(t *testing.T) {
 	)
 
 	input := service.TransactionInput{
-		FromUserId: "user1",
-		ToUserId:   "user2",
+		FromUserID: "user1",
+		ToUserID:   "user2",
 		Amount:     100,
 	}
 
@@ -86,14 +86,14 @@ func TestTransactionService_Transfer_SameUser(t *testing.T) {
 	)
 
 	input := service.TransactionInput{
-		FromUserId: "user1",
-		ToUserId:   "user1",
+		FromUserID: "user1",
+		ToUserID:   "user1",
 		Amount:     100,
 	}
 
 	err := transactionService.Transfer(context.Background(), log, input)
 
-	assert.ErrorIs(t, err, service.ErrSimilarId)
+	assert.ErrorIs(t, err, service.ErrSimilarID)
 }
 
 func TestTransactionService_Transfer_LowBalance(t *testing.T) {
@@ -109,8 +109,8 @@ func TestTransactionService_Transfer_LowBalance(t *testing.T) {
 	)
 
 	input := service.TransactionInput{
-		FromUserId: "user1",
-		ToUserId:   "user2",
+		FromUserID: "user1",
+		ToUserID:   "user2",
 		Amount:     1000,
 	}
 
@@ -132,10 +132,10 @@ func TestTransactionService_GetByUserId_Success(t *testing.T) {
 		),
 	)
 
-	transactions := []entity.Transaction{{Id: "txn1", FromUser: "user1", ToUser: "user2", Amount: 100}}
+	transactions := []entity.Transaction{{ID: "txn1", FromUser: "user1", ToUser: "user2", Amount: 100}}
 	transactionRepo.On("GetByUserID", mock.Anything, "user1").Return(transactions, nil)
 
-	result, err := transactionService.GetByUserId(context.Background(), log, "user1")
+	result, err := transactionService.GetByUserID(context.Background(), log, "user1")
 
 	assert.NoError(t, err)
 	assert.Equal(t, transactions, result)
@@ -154,7 +154,7 @@ func TestTransactionService_GetByUserId_NotFound(t *testing.T) {
 
 	transactionRepo.On("GetByUserID", mock.Anything, "user1").Return([]entity.Transaction{}, nil)
 
-	_, err := transactionService.GetByUserId(context.Background(), log, "user1")
+	_, err := transactionService.GetByUserID(context.Background(), log, "user1")
 
 	assert.ErrorIs(t, err, service.ErrNotFound)
 }

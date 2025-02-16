@@ -32,7 +32,7 @@ func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInpu
 		return "", err
 	}
 	if err == nil {
-		if tokenString, err = token.Create(output.Id); err != nil {
+		if tokenString, err = token.Create(output.ID); err != nil {
 			return "", err
 		}
 		return tokenString, err
@@ -44,12 +44,12 @@ func (s *UserService) Auth(ctx context.Context, log *slog.Logger, input AuthInpu
 	return tokenString, err
 }
 
-func (s *UserService) GetById(ctx context.Context, log *slog.Logger, id string) (entity.User, error) {
+func (s *UserService) GetByID(ctx context.Context, log *slog.Logger, id string) (entity.User, error) {
 	var err error
-	log.Info(fmt.Sprintf("Service - UserService - GetById"))
-	output, err := s.userRepo.GetById(ctx, id)
+	log.Info(fmt.Sprintf("Service - UserService - GetByID"))
+	output, err := s.userRepo.GetByID(ctx, id)
 	if err != nil {
-		log.Error(fmt.Sprintf("Service - UserService - GetById - GetById: %v", err))
+		log.Error(fmt.Sprintf("Service - UserService - GetByID - GetByID: %v", err))
 		return entity.User{}, ErrUserNotFound
 	}
 	return output, err
@@ -77,7 +77,7 @@ func (s *UserService) register(ctx context.Context, log *slog.Logger, input Auth
 		return "", ErrCannotCreateUser
 	}
 
-	if tokenString, err = token.Create(output.Id); err != nil {
+	if tokenString, err = token.Create(output.ID); err != nil {
 		return "", err
 	}
 	return tokenString, err

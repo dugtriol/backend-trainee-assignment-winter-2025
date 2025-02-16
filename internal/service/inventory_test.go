@@ -39,9 +39,9 @@ func TestGetItem_Success(t *testing.T) {
 		),
 	)
 
-	mockRepo.On("Add", mock.Anything, entity.Inventory{CustomerId: "user123", Type: "hat"}).Return(
+	mockRepo.On("Add", mock.Anything, entity.Inventory{CustomerID: "user123", Type: "hat"}).Return(
 		entity.Inventory{
-			CustomerId: "user123", Type: "hat", Quantity: 1,
+			CustomerID: "user123", Type: "hat", Quantity: 1,
 		}, nil,
 	)
 
@@ -66,7 +66,7 @@ func TestGetItem_LowBalance(t *testing.T) {
 	mockRepo.On(
 		"Add",
 		mock.Anything,
-		entity.Inventory{CustomerId: "user123", Type: "hat"},
+		entity.Inventory{CustomerID: "user123", Type: "hat"},
 	).Return(entity.Inventory{}, service.ErrLowBalance)
 
 	err := serviceInventory.GetItem(ctx, log, "user123", "hat")
@@ -89,12 +89,12 @@ func TestGetByUserId_Success(t *testing.T) {
 	mockRepo.On("GetByUserID", mock.Anything, "user123").Return(
 		[]entity.Inventory{
 			{
-				CustomerId: "user123", Type: "hat", Quantity: 1,
+				CustomerID: "user123", Type: "hat", Quantity: 1,
 			},
 		}, nil,
 	)
 
-	items, err := serviceInventory.GetByUserId(ctx, log, "user123")
+	items, err := serviceInventory.GetByUserID(ctx, log, "user123")
 
 	assert.NoError(t, err)
 	assert.Len(t, items, 1)
@@ -115,7 +115,7 @@ func TestGetByUserId_NotFound(t *testing.T) {
 
 	mockRepo.On("GetByUserID", mock.Anything, "user123").Return([]entity.Inventory{}, nil)
 
-	items, err := serviceInventory.GetByUserId(ctx, log, "user123")
+	items, err := serviceInventory.GetByUserID(ctx, log, "user123")
 
 	assert.ErrorIs(t, err, service.ErrNotFound)
 	assert.Empty(t, items)

@@ -26,7 +26,7 @@ func (s *InventoryService) checkParamItem(item string) bool {
 	return true
 }
 
-func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId, item string) error {
+func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userID, item string) error {
 	if !s.checkParamItem(item) {
 		log.Error(fmt.Sprintf("Service - InventoryService - GetItem - сheckParamItem: %s", item))
 		return ErrInvalidMerchType
@@ -35,7 +35,7 @@ func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId
 	// проверка баланса пользователя
 	// покупка мерча
 	// изменение баланса у пользователя
-	if _, err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerId: userId, Type: item}); err != nil {
+	if _, err := s.inventoryRepo.Add(ctx, entity.Inventory{CustomerID: userID, Type: item}); err != nil {
 		if errors.Is(err, repoerrs.ErrLowBalance) {
 			return ErrLowBalance
 		}
@@ -44,13 +44,13 @@ func (s *InventoryService) GetItem(ctx context.Context, log *slog.Logger, userId
 	return nil
 }
 
-func (s *InventoryService) GetByUserId(ctx context.Context, log *slog.Logger, userId string) (
+func (s *InventoryService) GetByUserID(ctx context.Context, log *slog.Logger, userID string) (
 	[]entity.Inventory, error,
 ) {
 	var err error
 	var inventories []entity.Inventory
-	if inventories, err = s.inventoryRepo.GetByUserID(ctx, userId); err != nil {
-		log.Error(fmt.Sprintf("Service - InventoryService - GetByUserId: %v", err))
+	if inventories, err = s.inventoryRepo.GetByUserID(ctx, userID); err != nil {
+		log.Error(fmt.Sprintf("Service - InventoryService - GetByUserID: %v", err))
 		return []entity.Inventory{}, err
 	}
 

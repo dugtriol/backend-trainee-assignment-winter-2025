@@ -25,12 +25,12 @@ func AuthMiddleware(
 			var err error
 			// вытаскиваем jwt, проверяем его, возвращаем id пользователя, вставляем его в context value
 			header := r.Header.Get("Authorization")
-			parseToken, err, done := authValidateToken(w, r, log, header, err)
+			parseToken, err, done := authValidateToken(w, r, log, header)
 			if done {
 				return
 			}
-			var userId string
-			if userId, err = parseToken.Claims.GetSubject(); err != nil {
+			var userID string
+			if userID, err = parseToken.Claims.GetSubject(); err != nil {
 				response.NewError(
 					w,
 					r,
@@ -42,8 +42,8 @@ func AuthMiddleware(
 				return
 			}
 			var output entity.User
-			if output, err = service.GetById(ctx, log, userId); err != nil {
-				log.Info("AuthMiddleware - service.GetById", "error", err.Error())
+			if output, err = service.GetByID(ctx, log, userID); err != nil {
+				log.Info("AuthMiddleware - service.GetByID", "error", err.Error())
 				response.NewError(
 					w,
 					r,
@@ -62,9 +62,10 @@ func AuthMiddleware(
 	}
 }
 
-func authValidateToken(w http.ResponseWriter, r *http.Request, log *slog.Logger, header string, err error) (
+func authValidateToken(w http.ResponseWriter, r *http.Request, log *slog.Logger, header string) (
 	*jwt.Token, error, bool,
 ) {
+	var err error
 	arr := strings.Split(header, " ")
 
 	if len(arr) != 2 {
@@ -96,16 +97,9 @@ func authValidateToken(w http.ResponseWriter, r *http.Request, log *slog.Logger,
 }
 
 func GetCurrentUserFromContext(ctx context.Context) (*entity.User, error) {
-	// вытаскиваем id из context value
-	//
-	//log.Println(fmt.Sprintf("ctx.Value(CurrentUserKey): %s", ctx.Value(CurrentUserKey)))
-	//if ctx.Value(CurrentUserKey) == nil {
-	//	return nil, errNoUserInContext
-	//}
-
 	user, ok := ctx.Value(CurrentUserKey).(entity.User)
 	log.Printf(fmt.Sprintf("GetCurrentUserFromContext - ctx.Value(CurrentUserKey).(*entity.User): %v", user))
-	if !ok || user.Id == "" {
+	if !ok || user.ID == "" {
 		return nil, ErrNoUserInContext
 	}
 

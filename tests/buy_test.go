@@ -33,12 +33,12 @@ func TestBuyMerch(t *testing.T) {
 			resp, err := repos.User.Create(ctx, user)
 
 			// act
-			inventory := fixtures.Inventory().CustomerId(resp.Id).Type("cup").V()
+			inventory := fixtures.Inventory().CustomerId(resp.ID).Type("cup").V()
 			res, err := repos.Inventory.Add(ctx, inventory)
 
 			// assert
 			require.NoError(t, err)
-			assert.Equal(t, inventory.CustomerId, res.CustomerId)
+			assert.Equal(t, inventory.CustomerId, res.CustomerID)
 			assert.Equal(t, inventory.Type, res.Type)
 			assert.Equal(t, 1, res.Quantity)
 		},
@@ -62,7 +62,7 @@ func TestBuyMerch_InsufficientFunds(t *testing.T) {
 			require.NoError(t, err)
 
 			// act
-			inventory := fixtures.Inventory().CustomerId(resp.Id).Type("pink-hoody").V()
+			inventory := fixtures.Inventory().CustomerId(resp.ID).Type("pink-hoody").V()
 			_, err = repos.Inventory.Add(ctx, inventory)
 			_, err = repos.Inventory.Add(ctx, inventory)
 			_, err = repos.Inventory.Add(ctx, inventory)

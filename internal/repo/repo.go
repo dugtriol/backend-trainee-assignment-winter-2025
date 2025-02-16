@@ -10,13 +10,13 @@ import (
 
 type User interface {
 	Create(ctx context.Context, user entity.User) (entity.User, error)
-	GetById(ctx context.Context, id string) (entity.User, error)
+	GetByID(ctx context.Context, id string) (entity.User, error)
 	GetByUsername(ctx context.Context, username string) (entity.User, error)
 }
 
 type Inventory interface {
 	Add(ctx context.Context, inventory entity.Inventory) (entity.Inventory, error)
-	GetByUserID(ctx context.Context, userId string) ([]entity.Inventory, error)
+	GetByUserID(ctx context.Context, userID string) ([]entity.Inventory, error)
 }
 
 type Transaction interface {
@@ -24,11 +24,11 @@ type Transaction interface {
 		ctx context.Context, input entity.Transaction,
 		isExist func(ctx context.Context, id string) (entity.User, error),
 	) error
-	GetByUserID(ctx context.Context, userId string) ([]entity.Transaction, error)
+	GetByUserID(ctx context.Context, userID string) ([]entity.Transaction, error)
 }
 
 type Merch interface {
-	GetById(ctx context.Context, id string) (entity.Merch, error)
+	GetByID(ctx context.Context, id string) (entity.Merch, error)
 	GetByName(ctx context.Context, name string) (entity.Merch, error)
 }
 

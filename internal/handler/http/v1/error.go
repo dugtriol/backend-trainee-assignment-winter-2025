@@ -22,9 +22,8 @@ var (
 	ErrLowBalance = fmt.Errorf("insufficient funds")
 	MsgLowBalance = "Insufficient funds"
 
-	ErrSimilarId = fmt.Errorf("similar IDs")
-	MsgSimilarId = "similar IDs"
+	ErrSimilarID = fmt.Errorf("similar IDs")
+	MsgSimilarID = "similar IDs"
 
-	ErrInvalidReq        = fmt.Errorf("Invalid request")
-	ErrInternalServerErr = fmt.Errorf("Internal server error")
+	ErrInternalServerErr = fmt.Errorf("internal server error")
 )

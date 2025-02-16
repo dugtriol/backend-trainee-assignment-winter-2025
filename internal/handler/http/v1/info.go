@@ -39,7 +39,7 @@ type outputInfo struct {
 
 func (u *infoRoutes) info(ctx context.Context, log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		user := &entity.User{}
+		var user *entity.User
 		var err error
 		var inventories []entity.Inventory
 		var transactions []entity.Transaction
@@ -47,7 +47,7 @@ func (u *infoRoutes) info(ctx context.Context, log *slog.Logger) http.HandlerFun
 		var coinHistory service.CoinHistory
 
 		if user, err = GetCurrentUserFromContext(r.Context()); err != nil {
-			log.Info("infoRoutes - service.GetById", "error", err.Error())
+			log.Info("infoRoutes - service.GetByID", "error", err.Error())
 			response.NewError(
 				w,
 				r,
@@ -59,18 +59,18 @@ func (u *infoRoutes) info(ctx context.Context, log *slog.Logger) http.HandlerFun
 			return
 		}
 
-		if inventories, err = u.inventoryService.GetByUserId(ctx, log, user.Id); err != nil {
-			log.Info("infoRoutes - inventoryService.GetByUserId", "error", err.Error())
+		if inventories, err = u.inventoryService.GetByUserID(ctx, log, user.ID); err != nil {
+			log.Info("infoRoutes - inventoryService.GetByUserID", "error", err.Error())
 		}
 
-		if transactions, err = u.transactionService.GetByUserId(ctx, log, user.Id); err != nil {
-			log.Info("infoRoutes - transactionService.GetByUserId", "error", err.Error())
+		if transactions, err = u.transactionService.GetByUserID(ctx, log, user.ID); err != nil {
+			log.Info("infoRoutes - transactionService.GetByUserID", "error", err.Error())
 		}
 
 		if infoInventory, coinHistory, err = u.infoService.Get(
 			ctx,
 			log,
-			user.Id,
+			user.ID,
 			inventories,
 			transactions,
 		); err != nil {

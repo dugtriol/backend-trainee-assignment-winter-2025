@@ -33,7 +33,7 @@ type inputSendCoin struct {
 func (u *transactionRoutes) sendCoin(ctx context.Context, log *slog.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var err error
-		current := &entity.User{}
+		var current *entity.User
 		if current, err = GetCurrentUserFromContext(r.Context()); err != nil {
 			log.Info("transactionRoutes - GetCurrentUserFromContext", "error", err.Error())
 			response.NewError(
@@ -58,20 +58,20 @@ func (u *transactionRoutes) sendCoin(ctx context.Context, log *slog.Logger) http
 		}
 
 		transactionInput := service.TransactionInput{
-			FromUserId: current.Id,
-			ToUserId:   input.ToUser,
+			FromUserID: current.ID,
+			ToUserID:   input.ToUser,
 			Amount:     input.Amount,
 		}
 
 		if err = u.transactionService.Transfer(ctx, log, transactionInput); err != nil {
-			if errors.Is(err, service.ErrSimilarId) {
+			if errors.Is(err, service.ErrSimilarID) {
 				response.NewError(
 					w,
 					r,
 					log,
-					ErrSimilarId,
+					ErrSimilarID,
 					http.StatusBadRequest,
-					MsgSimilarId,
+					MsgSimilarID,
 				)
 				return
 			}

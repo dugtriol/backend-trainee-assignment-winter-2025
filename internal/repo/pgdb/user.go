@@ -38,7 +38,7 @@ func (u *UserRepository) Create(ctx context.Context, user entity.User) (entity.U
 
 	var output entity.User
 	err = u.Cluster.QueryRow(ctx, sql, args...).Scan(
-		&output.Id,
+		&output.ID,
 		&output.Username,
 		&output.Password,
 		&output.Amount,
@@ -53,7 +53,7 @@ func (u *UserRepository) Create(ctx context.Context, user entity.User) (entity.U
 	return output, nil
 }
 
-func (u *UserRepository) GetById(ctx context.Context, id string) (entity.User, error) {
+func (u *UserRepository) GetByID(ctx context.Context, id string) (entity.User, error) {
 	return u.getByField(ctx, "id", id)
 }
 
@@ -72,7 +72,7 @@ func (u *UserRepository) getByField(ctx context.Context, field, value string) (e
 
 	var output entity.User
 	err = u.Cluster.QueryRow(ctx, sql, args...).Scan(
-		&output.Id,
+		&output.ID,
 		&output.Username,
 		&output.Password,
 		&output.Amount,
