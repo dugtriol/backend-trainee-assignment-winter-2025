@@ -50,7 +50,7 @@ func (u *inventoryRoutes) buy(ctx context.Context, log *slog.Logger) http.Handle
 		var err error
 		current := &entity.User{}
 		if current, err = GetCurrentUserFromContext(r.Context()); err != nil {
-			log.Info("inventoryRoutes - service.GetById", err)
+			log.Info("inventoryRoutes - service.GetById", "error", err.Error())
 			response.NewError(
 				w,
 				r,

@@ -47,7 +47,7 @@ func (u *infoRoutes) info(ctx context.Context, log *slog.Logger) http.HandlerFun
 		var coinHistory service.CoinHistory
 
 		if user, err = GetCurrentUserFromContext(r.Context()); err != nil {
-			log.Info("infoRoutes - service.GetById", err)
+			log.Info("infoRoutes - service.GetById", "error", err.Error())
 			response.NewError(
 				w,
 				r,
@@ -60,11 +60,11 @@ func (u *infoRoutes) info(ctx context.Context, log *slog.Logger) http.HandlerFun
 		}
 
 		if inventories, err = u.inventoryService.GetByUserId(ctx, log, user.Id); err != nil {
-			log.Info("infoRoutes - inventoryService.GetByUserId", err)
+			log.Info("infoRoutes - inventoryService.GetByUserId", "error", err.Error())
 		}
 
 		if transactions, err = u.transactionService.GetByUserId(ctx, log, user.Id); err != nil {
-			log.Info("infoRoutes - transactionService.GetByUserId", err)
+			log.Info("infoRoutes - transactionService.GetByUserId", "error", err.Error())
 		}
 
 		if infoInventory, coinHistory, err = u.infoService.Get(

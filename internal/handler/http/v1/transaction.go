@@ -35,7 +35,7 @@ func (u *transactionRoutes) sendCoin(ctx context.Context, log *slog.Logger) http
 		var err error
 		current := &entity.User{}
 		if current, err = GetCurrentUserFromContext(r.Context()); err != nil {
-			log.Info("transactionRoutes - GetCurrentUserFromContext", err)
+			log.Info("transactionRoutes - GetCurrentUserFromContext", "error", err.Error())
 			response.NewError(
 				w,
 				r,

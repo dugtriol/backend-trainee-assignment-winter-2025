@@ -43,7 +43,7 @@ func AuthMiddleware(
 			}
 			var output entity.User
 			if output, err = service.GetById(ctx, log, userId); err != nil {
-				log.Info("AuthMiddleware - service.GetById", err)
+				log.Info("AuthMiddleware - service.GetById", "error", err.Error())
 				response.NewError(
 					w,
 					r,

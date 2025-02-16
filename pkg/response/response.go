@@ -18,7 +18,7 @@ type Response struct {
 func NewError(
 	w http.ResponseWriter, r *http.Request, log *slog.Logger, err error, errStatus int, message string,
 ) {
-	log.Error(message, err)
+	log.Error(message, "error", err.Error())
 	w.WriteHeader(errStatus)
 	render.JSON(w, r, makeResponse(message))
 }
@@ -30,7 +30,7 @@ func NewValidateError(
 	var validateErr validator.ValidationErrors
 	errors.As(err, &validateErr)
 
-	log.Error(message, err)
+	log.Error(message, "error", err.Error())
 	w.WriteHeader(errStatus)
 	render.JSON(w, r, validationError(validateErr))
 }

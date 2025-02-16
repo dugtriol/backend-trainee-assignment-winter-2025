@@ -73,7 +73,7 @@ func (s *UserService) register(ctx context.Context, log *slog.Logger, input Auth
 		if errors.Is(err, repoerrs.ErrAlreadyExists) {
 			return "", ErrUserAlreadyExists
 		}
-		log.Error("UserService.Register - c.userRepo.Register: %v", err)
+		log.Error(fmt.Sprintf("UserService.Register - c.userRepo.Register: %v", err))
 		return "", ErrCannotCreateUser
 	}
 
